@@ -26,14 +26,6 @@ class StoreProjectRequest extends FormRequest
         return [
             'name' => 'required',
             'description' => 'required',
-            'user_id' => 'required'
-        ];
-    }
-
-    public function messages()
-    {
-        return [
-            'user_id.required' => 'The user is unauthorized to complete this action.'
         ];
     }
 }

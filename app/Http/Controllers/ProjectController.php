@@ -3,23 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ProjectController extends Controller
 {
-    public function __construct()
-    {
-
-    }
-
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
+        Log::info("Get projects request received from user: " . $request->user()->name . " (ID: " . $request->user()->id . ")");
+
         $projects = Project::get();
         return response()->json([
             'projects' => $projects
@@ -34,11 +34,14 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        $project = Project::create($request->input());
+        $input = $request->input();
+        $input['user_id'] = Auth::user()->id;
+
+        $project = Project::create($input);
 
         return response()->json([
             "message" => "Project stored successfully." ,
-            "project" => $project
+            "project" => $project,
         ]);
     }
 
@@ -62,7 +65,7 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdateProjectRequest $request, $id)
     {
         $project = Project::find($id);
 
@@ -83,6 +86,9 @@ class ProjectController extends Controller
     public function destroy($id)
     {
         $project = Project::find($id);
+
+        if (!Auth::user()->is_admin && Auth::user()->id != $project->id)
+            return response()->json(['message' => 'Action forbidden'], 400);
 
         $project->delete();
 
