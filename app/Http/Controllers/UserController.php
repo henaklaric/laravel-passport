@@ -11,10 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-
-    }
 
     /**
      * Display a listing of the resource.
@@ -42,7 +38,9 @@ class UserController extends Controller
     {
         Log::info("Store user request received from user: " . $request->user()->name . " (ID: " . $request->user()->id . ")");
 
-        $user = User::create($request->input());
+        $input = $request->input();
+        $input['password'] = bcrypt($input['password']);
+        $user = User::create($input);
 
         return response()->json([
             "message" => "User stored successfully." ,
@@ -78,7 +76,13 @@ class UserController extends Controller
 
         $user = User::find($id);
 
-        $user->update($request->input());
+        $input = $request->input();
+
+        if ($request->filled('password')) {
+            $input['password'] = bcrypt($request->input('password'));
+        }
+
+        $user->update($input);
 
         return response()->json([
             "message" => "User updated successfully." ,
