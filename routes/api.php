@@ -19,4 +19,4 @@ use Illuminate\Support\Facades\Route;
 //});
 
 Route::apiResource('users', \App\Http\Controllers\UserController::class)->middleware('auth:api');
-Route::apiResource('projects', \App\Http\Controllers\UserController::class)->middleware('auth:api');
+Route::apiResource('projects', \App\Http\Controllers\ProjectController::class)->middleware('auth:api');
